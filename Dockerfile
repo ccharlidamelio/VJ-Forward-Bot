@@ -1,12 +1,19 @@
-FROM python:3.10.8-slim-buster
+# Utiliser une image plus récente avec Debian bullseye ou bookworm
+FROM python:3.10.8-slim-bullseye
 
-RUN apt update && apt upgrade -y
-RUN apt install git -y
+# Mettre à jour et installer git
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y git && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copier requirements et installer les dépendances Python
 COPY requirements.txt /requirements.txt
+RUN pip3 install --upgrade pip && pip3 install --no-cache-dir -r /requirements.txt
 
-RUN cd /
-RUN pip3 install -U pip && pip3 install -U -r requirements.txt
+# Préparer le répertoire de l'application
 RUN mkdir /VJ-Forward-Bot
 WORKDIR /VJ-Forward-Bot
 COPY . /VJ-Forward-Bot
-CMD gunicorn app:app & python3 main.py
+
+# Commande de démarrage
+CMD ["python3", "main.py"]
